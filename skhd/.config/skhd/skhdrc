@@ -74,3 +74,6 @@ alt - s : yabai -m space --layout $(yabai -m query --spaces --space | jq -r 'if 
 # Cycle through stacked windows: Alt+n / Alt+p (wraps around)
 alt - n : yabai -m window --focus stack.next || yabai -m window --focus stack.first
 alt - p : yabai -m window --focus stack.prev || yabai -m window --focus stack.last
+
+# Move the window to the other monitor
+alt + shift - o : yabai -m window --display next || yabai -m window --display first; yabai -m display --focus recent
