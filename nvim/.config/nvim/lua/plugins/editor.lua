@@ -64,12 +64,12 @@ return {
         end,
       })
 
-      -- Auto-restore the directory's session when started as plain `nvim` (no files, no stdin)
+      -- Auto-restore the directory's session when started as plain `nvim` (no files, no stdin, not headless)
       vim.api.nvim_create_autocmd("StdinReadPre", { callback = function() vim.g.started_with_stdin = true end })
       vim.api.nvim_create_autocmd("VimEnter", {
         nested = true, -- let the restored buffers fire their own autocmds (filetype, LSP, ...)
         callback = function()
-          if vim.fn.argc(-1) == 0 and not vim.g.started_with_stdin then
+          if vim.fn.argc(-1) == 0 and not vim.g.started_with_stdin and #vim.api.nvim_list_uis() > 0 then
             require("persistence").load()
           end
         end,

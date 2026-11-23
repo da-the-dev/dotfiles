@@ -50,9 +50,10 @@ local function start_kernel()
   vim.cmd("MoltenInit " .. name)
 end
 
--- image.nvim needs a terminal to draw in: not headless (scripts), and inside tmux only with
--- allow-passthrough on. Otherwise it's disabled instead of erroring on start; <leader>jp still works.
+-- image.nvim needs ImageMagick and a terminal to draw in: not headless (scripts), and inside tmux
+-- only with allow-passthrough on. Otherwise it's disabled instead of erroring; <leader>jp still works.
 local images_supported = #vim.api.nvim_list_uis() > 0
+  and (vim.fn.executable("magick") == 1 or vim.fn.executable("convert") == 1)
   and (not vim.env.TMUX or vim.trim(vim.fn.system({ "tmux", "show", "-gv", "allow-passthrough" })) ~= "off")
 
 return {
@@ -62,6 +63,7 @@ return {
     "3rd/image.nvim",
     version = "*",
     cond = images_supported,
+    build = false, -- skip its luarocks "magick" library; processor below uses the magick CLI instead
     opts = {
       backend = "kitty",
       processor = "magick_cli", -- uses the `magick` command, no lua rock needed
