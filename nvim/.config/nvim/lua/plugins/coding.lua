@@ -20,6 +20,16 @@ return {
     end,
   },
 
+  -- Render markdown in the buffer (headings, code blocks, tables, checkboxes); the cursor
+  -- line and insert mode show raw text. `:RenderMarkdown toggle` to switch off.
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    version = "*",
+    ft = "markdown",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    opts = {},
+  },
+
   -- LSP: server configs come from nvim-lspconfig, servers are installed via brew
   -- (basedpyright, ruff, lua-language-server; clangd comes with Xcode)
   {
