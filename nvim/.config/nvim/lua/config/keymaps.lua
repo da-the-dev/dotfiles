@@ -18,3 +18,13 @@ vim.keymap.set("n", "<leader>gg", function()
   })
   vim.cmd.startinsert()
 end, { desc = "Lazygit" })
+
+-- Windows: <C-h/j/k/l> to move between splits (incl. neo-tree), instead of <C-w>h/j/k/l
+vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
+
+-- Buffers: <S-h>/<S-l> for previous/next (replaces H/L = top/bottom of screen)
+vim.keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })

@@ -11,6 +11,7 @@ return {
     opts = {
       spec = {
         { "<leader>f", group = "find" },
+        { "<leader>b", group = "buffer" },
         { "<leader>g", group = "git" },
         { "<leader>c", group = "code" },
         { "<leader>q", group = "session" },
@@ -39,6 +40,26 @@ return {
               pcall(vim.api.nvim_buf_delete, b, { force = true })
             end
           end
+
+          -- Drop files outside the project dir (e.g. a quick ~/.zshrc edit) from the session
+          local cwd = vim.fn.resolve(vim.fn.getcwd())
+          local dropped, kept = false, false
+          for _, b in ipairs(vim.api.nvim_list_bufs()) do
+            local name = vim.api.nvim_buf_get_name(b)
+            if vim.bo[b].buflisted and vim.bo[b].buftype == "" and name ~= "" then
+              if vim.fs.relpath(cwd, vim.fn.resolve(name)) then
+                kept = true
+              else
+                pcall(vim.api.nvim_buf_delete, b, {}) -- not forced: never discards unsaved changes
+                dropped = true
+              end
+            end
+          end
+          -- Only outside files were open: persistence skips saving an empty session,
+          -- so remove the old one instead of letting it come back
+          if dropped and not kept then
+            os.remove(require("persistence").current())
+          end
         end,
       })
 
@@ -58,6 +79,20 @@ return {
       { "<leader>ql", function() require("persistence").load({ last = true }) end, desc = "Restore last session" },
       { "<leader>qS", function() require("persistence").select() end, desc = "Select session" },
       { "<leader>qd", function() require("persistence").stop() end, desc = "Don't save session on quit" },
+      {
+        "<leader>qD",
+        function()
+          local p = require("persistence")
+          local file = p.current()
+          p.stop() -- otherwise quitting would save it again
+          if os.remove(file) then
+            vim.notify("Deleted session " .. vim.fn.fnamemodify(file, ":t"))
+          else
+            vim.notify("No saved session for this directory")
+          end
+        end,
+        desc = "Delete this dir's session",
+      },
       -- Restart nvim, keeping the session. Loads it explicitly because :restart reuses the
       -- original command line, so `nvim file.py` would come back as just file.py.
       -- neo-tree is reopened if it was open.

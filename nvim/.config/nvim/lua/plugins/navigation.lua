@@ -1,4 +1,4 @@
--- Finding files/text (telescope) and the file explorer sidebar (neo-tree)
+-- Finding files/text (telescope), the file explorer sidebar (neo-tree), buffer tabs (bufferline)
 return {
   {
     "nvim-telescope/telescope.nvim",
@@ -71,6 +71,33 @@ return {
           hide_by_name = { ".git" },
         },
       },
+    },
+  },
+
+  -- Open buffers shown as tabs across the top, like VSCode's tab bar
+  {
+    "akinsho/bufferline.nvim",
+    version = "*",
+    lazy = false,
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    opts = {
+      options = {
+        -- clicking a tab's x / right-click: close like <leader>bd (default is bdelete!, which discards changes)
+        close_command = function(n) require("mini.bufremove").delete(n, false) end,
+        right_mouse_command = function(n) require("mini.bufremove").delete(n, false) end,
+        -- start the tab bar to the right of neo-tree, like VSCode
+        offsets = { { filetype = "neo-tree", text = "Explorer", text_align = "left", separator = true } },
+      },
+    },
+  },
+
+  -- Close a buffer but keep the window layout (like closing a tab in VSCode);
+  -- asks to save if there are unsaved changes
+  {
+    "nvim-mini/mini.bufremove",
+    version = "*",
+    keys = {
+      { "<leader>bd", function() require("mini.bufremove").delete(0, false) end, desc = "Close buffer" },
     },
   },
 }
