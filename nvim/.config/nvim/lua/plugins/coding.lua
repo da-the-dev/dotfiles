@@ -7,10 +7,12 @@ return {
     lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter").install({
+      -- parsers to install (async on startup; install.sh builds them up front for offline use)
+      vim.g.treesitter_parsers = {
         "python", "c", "cpp", "lua",
         "markdown", "markdown_inline", "vim", "vimdoc", "query",
-      })
+      }
+      require("nvim-treesitter").install(vim.g.treesitter_parsers)
       -- use treesitter highlighting for any filetype that has a parser
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)

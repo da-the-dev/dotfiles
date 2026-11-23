@@ -142,6 +142,13 @@ log "nvim plugins (versions from lazy-lock.json)"
 nvim --headless "+Lazy! restore" +qa
 nvim --headless "+UpdateRemotePlugins" +qa >/dev/null 2>&1
 
+# Things nvim would otherwise download on first start (needed for offline machines):
+log "treesitter parsers (compiled with cc)"
+nvim --headless -c "lua require('nvim-treesitter').install(vim.g.treesitter_parsers):wait(600000)" -c qa
+log "blink.cmp fuzzy matcher library"
+nvim --headless -c "lua vim.defer_fn(function() vim.cmd('cq') end, 120000)" \
+  -c "lua require('blink.cmp.fuzzy.download').ensure_downloaded(function(err) if err then io.stderr:write(tostring(err)) vim.cmd('cq') else vim.cmd('qa') end end)"
+
 # ---------- reminders ----------
 
 case ":$ORIG_PATH:" in
