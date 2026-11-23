@@ -2,6 +2,8 @@
 alt - return : open -na Ghostty.app --args
 # Firefox: Alt+b
 alt - b : open -na Firefox.app --args
+# Obisidian: Alt+O
+alt - o : open -na Obsidian.app --args
 
 # Close focused window: Alt+Shift+Q
 alt + shift - q : yabai -m window --close
