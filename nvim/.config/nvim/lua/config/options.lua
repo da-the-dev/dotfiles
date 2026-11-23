@@ -7,6 +7,14 @@ vim.opt.shiftwidth = 2
 vim.opt.termguicolors = true
 vim.opt.undofile = true -- persist undo history (stored in stdpath("state")/undo)
 vim.o.winborder = "rounded" -- border around floating windows (diagnostics, hover docs, ...)
+-- Russian keyboard layout: in normal/visual mode, Cyrillic letters act as the Latin letter on
+-- the same key (вв = dd, Ж = :). Built-in commands only; see lua/plugins/keyboard.lua for the
+-- full decision (auto-switching the layout covers the rest).
+local ru = [[ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮЁйцукенгшщзхъфывапролджэячсмитьбюё]]
+local en = [[QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>~qwertyuiop[]asdfghjkl;'zxcvbnm,.`]]
+local function escape(str) return (str:gsub("[;,\\]", "\\%0")) end -- ; , \ are special in langmap
+vim.opt.langmap = escape(ru) .. ";" .. escape(en)
+
 -- vim.diagnostic.config({ virtual_text = false }) -- toggle to show diagnostic messages at end of line
 
 -- Python for nvim's own Python plugins (molten, debugpy), separate from project interpreters. Create with:
