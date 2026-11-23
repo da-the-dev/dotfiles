@@ -50,10 +50,10 @@ local function start_kernel()
   vim.cmd("MoltenInit " .. name)
 end
 
--- image.nvim can't draw inside tmux unless tmux passes graphics through (allow-passthrough on);
--- there it's disabled instead of erroring on every start, and <leader>jp still works
-local images_supported = not vim.env.TMUX
-  or vim.trim(vim.fn.system({ "tmux", "show", "-gv", "allow-passthrough" })) ~= "off"
+-- image.nvim needs a terminal to draw in: not headless (scripts), and inside tmux only with
+-- allow-passthrough on. Otherwise it's disabled instead of erroring on start; <leader>jp still works.
+local images_supported = #vim.api.nvim_list_uis() > 0
+  and (not vim.env.TMUX or vim.trim(vim.fn.system({ "tmux", "show", "-gv", "allow-passthrough" })) ~= "off")
 
 return {
   -- Images in the terminal via Ghostty's (kitty) graphics protocol: molten plots, and
