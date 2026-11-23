@@ -1,7 +1,12 @@
 #!/bin/sh
+# After `git pull`: re-link configs (picks up new/removed files), restart macOS services
 
-# Re-stow
-cd "$(git rev-parse --show-toplevel)" && stow -R */
+cd "$(git rev-parse --show-toplevel)" || exit 1
 
-# Restart yabai & skhd
-yabai --restart-service / skhd --restart-service
+if [ "$(uname -s)" = Darwin ]; then
+  stow -R */
+  yabai --restart-service
+  skhd --restart-service
+elif command -v stow >/dev/null 2>&1; then
+  stow -R nvim lazygit tmux # same set as install.sh links on Linux
+fi
