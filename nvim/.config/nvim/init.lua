@@ -1,4 +1,4 @@
--- Leader must be set before lazy.nvim loads plugins so their mappings use it
+-- Basic config
 vim.g.mapleader = " "
 
 -- Bootstrap lazy.nvim
@@ -22,7 +22,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     "tpope/vim-surround",
-    "tpope/vim-repeat", -- makes `.` repeat surround actions
+    "tpope/vim-repeat",
     {
       "nvim-telescope/telescope.nvim",
       version = "*",
@@ -37,7 +37,7 @@ require("lazy").setup({
         { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
       },
       config = function()
-        -- include hidden files (e.g. .config/) but skip .git; .gitignore is still respected
+        -- include hidden files and .gitignore, but skip .git
         require("telescope").setup({
           defaults = {
             vimgrep_arguments = {
@@ -56,6 +56,5 @@ require("lazy").setup({
       end,
     },
   },
-  -- keep the default colorscheme (lazy.nvim otherwise switches to habamax while installing)
   install = { colorscheme = { "default" } },
 })
