@@ -1,4 +1,16 @@
 -- Editing helpers, keybinding hints, sessions
+
+-- Before a session is saved: remove neo-tree and terminal (e.g. lazygit) buffers, which a
+-- session would restore as broken placeholders / respawned processes. Deleting the buffer
+-- (not just closing its window) also works when it's the last window.
+local function close_tool_buffers()
+  for _, b in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.bo[b].filetype == "neo-tree" or vim.bo[b].buftype == "terminal" then
+      pcall(vim.api.nvim_buf_delete, b, { force = true })
+    end
+  end
+end
+
 return {
   -- ys/cs/ds to add/change/delete surroundings; vim-repeat makes `.` repeat them
   "tpope/vim-surround",
@@ -27,21 +39,10 @@ return {
     lazy = false, -- must be loaded at startup for auto-restore
     opts = {},
     init = function()
-      -- Before saving: close neo-tree and terminals (e.g. lazygit), which a session
-      -- would otherwise restore as empty windows / respawned processes
       vim.api.nvim_create_autocmd("User", {
         pattern = "PersistenceSavePre",
         callback = function()
-          for _, w in ipairs(vim.api.nvim_list_wins()) do
-            if vim.bo[vim.api.nvim_win_get_buf(w)].filetype == "neo-tree" then
-              pcall(vim.api.nvim_win_close, w, true)
-            end
-          end
-          for _, b in ipairs(vim.api.nvim_list_bufs()) do
-            if vim.bo[b].buftype == "terminal" then
-              pcall(vim.api.nvim_buf_delete, b, { force = true })
-            end
-          end
+          close_tool_buffers()
 
           -- Drop files outside the project dir (e.g. a quick ~/.zshrc edit) from the session
           local cwd = vim.fn.resolve(vim.fn.getcwd())
@@ -110,6 +111,7 @@ return {
           local tree_open = vim.iter(vim.api.nvim_list_wins()):any(function(w)
             return vim.bo[vim.api.nvim_win_get_buf(w)].filetype == "neo-tree"
           end)
+          close_tool_buffers() -- save() doesn't run the PersistenceSavePre cleanup
           require("persistence").save()
           vim.cmd("restart lua require('persistence').load()" .. (tree_open and " vim.cmd('Neotree show')" or ""))
         end,
