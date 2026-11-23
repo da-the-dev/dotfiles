@@ -37,7 +37,21 @@ require("lazy").setup({
         { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
       },
       config = function()
-        require("telescope").setup({})
+        -- include hidden files (e.g. .config/) but skip .git; .gitignore is still respected
+        require("telescope").setup({
+          defaults = {
+            vimgrep_arguments = {
+              "rg", "--color=never", "--no-heading", "--with-filename",
+              "--line-number", "--column", "--smart-case",
+              "--hidden", "--glob", "!**/.git/*",
+            },
+          },
+          pickers = {
+            find_files = {
+              find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+            },
+          },
+        })
         require("telescope").load_extension("fzf")
       end,
     },
