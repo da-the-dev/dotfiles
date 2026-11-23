@@ -66,6 +66,8 @@ install_linux() {
     local ts_arch; [ "$arch" = x86_64 ] && ts_arch=x64 || ts_arch=arm64
     curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-$ts_arch.gz" | gunzip > "$BIN/tree-sitter"
     chmod 755 "$BIN/tree-sitter"
+    # release binaries need a recent glibc; optional (parsers compile with cc), so drop it if broken
+    "$BIN/tree-sitter" --version >/dev/null 2>&1 || { rm "$BIN/tree-sitter"; warn "tree-sitter CLI doesn't run here (glibc too old); skipped, not needed for the bundled parsers"; }
   fi
 
   if needs lazygit; then
