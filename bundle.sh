@@ -58,9 +58,11 @@ Built dist/$NAME ($(du -h "$OUT/$NAME" | cut -f1)). On the server:
 
   scp dist/$NAME server:
   ssh server
-  ls -d ~/.config/nvim ~/.config/lazygit ~/.config/tmux 2>/dev/null  # move these away first if listed
+  ls -d ~/.config/{nvim,lazygit,tmux,git} 2>/dev/null  # move these away first if listed
   tar -xzf $NAME -C ~ && rm $NAME
   echo 'export PATH="\$HOME/.local/bin:\$PATH"' >> ~/.bashrc           # once
+  git config --file ~/.gitconfig user.name "..."                       # once (not --global:
+  git config --file ~/.gitconfig user.email "..."                      #  that would edit dotfiles)
 
 Rebuilding and unpacking again updates everything in place.
 EOF

@@ -123,8 +123,8 @@ link_pkg() {
 # ---------- run ----------
 
 case "$(uname -s)" in
-  Darwin) install_macos; packages=(nvim lazygit tmux skhd yabai) ;;
-  Linux) install_linux; packages=(nvim lazygit tmux) ;;
+  Darwin) install_macos; packages=(nvim lazygit tmux git skhd yabai) ;;
+  Linux) install_linux; packages=(nvim lazygit tmux git) ;;
   *) warn "unsupported OS: $(uname -s)"; exit 1 ;;
 esac
 
@@ -136,6 +136,11 @@ log "nvim python host (for molten): $NVIM_DATA/python-host"
 uv pip install -q --python "$NVIM_DATA/python-host/bin/python" pynvim jupyter_client requests websocket-client
 
 log "linking configs: ${packages[*]}"
+# git identity lives in ~/.gitconfig (per machine, not in dotfiles). It must exist: otherwise
+# `git config --global` would write into ~/.config/git/config, i.e. into this repo.
+if [ ! -e "$HOME/.gitconfig" ]; then
+  printf '# Machine-specific git identity. Shared aliases/settings: ~/.config/git/config (dotfiles)\n' > "$HOME/.gitconfig"
+fi
 for pkg in "${packages[@]}"; do link_pkg "$pkg"; done
 
 log "nvim plugins (versions from lazy-lock.json)"
@@ -161,4 +166,6 @@ fi
 if have tmux && [ "$(tmux -V | sed 's/[^0-9.]//g' | awk -F. '{print ($1 * 100 + $2 >= 301)}')" = 0 ]; then
   warn "tmux < 3.1 doesn't read ~/.config/tmux; run:  ln -s ~/.config/tmux/tmux.conf ~/.tmux.conf"
 fi
+git config --file "$HOME/.gitconfig" user.email >/dev/null ||
+  warn "set your git identity: git config --file ~/.gitconfig user.name \"...\"; git config --file ~/.gitconfig user.email \"...\""
 log "done"

@@ -8,5 +8,5 @@ if [ "$(uname -s)" = Darwin ]; then
   yabai --restart-service
   skhd --restart-service
 elif command -v stow >/dev/null 2>&1; then
-  stow -R nvim lazygit tmux # same set as install.sh links on Linux
+  stow -R nvim lazygit tmux git # same set as install.sh links on Linux
 fi

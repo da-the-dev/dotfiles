@@ -1,0 +1,31 @@
+# Shared git config. Name/email are NOT here: they go in ~/.gitconfig on each machine,
+# which git also reads (and which wins on conflicts). Set them with:
+#   git config --file ~/.gitconfig user.name "..."
+#   git config --file ~/.gitconfig user.email "..."
+# (plain `git config --global` would write here if ~/.gitconfig doesn't exist)
+
+[alias]
+	b = branch
+	c = checkout
+	p = pull
+	s = status -sb
+	d = diff
+	ds = diff --staged
+	cm = commit -m
+	amend = commit --amend --no-edit
+	unstage = restore --staged
+	last = log -1 --stat
+	lg = log --oneline --graph --decorate
+
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true      # first push of a new branch sets its upstream
+[fetch]
+	prune = true                # drop remote branches that were deleted
+[rebase]
+	autoStash = true
+[diff]
+	algorithm = histogram       # more readable diffs
+[merge]
+	conflictStyle = zdiff3      # conflicts also show the original text
