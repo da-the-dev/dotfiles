@@ -15,6 +15,7 @@ return {
         { "<leader>g", group = "git" },
         { "<leader>j", group = "jupyter" },
         { "<leader>c", group = "code" },
+        { "<leader>d", group = "debug" },
         { "<leader>q", group = "session" },
       },
     },

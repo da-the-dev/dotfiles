@@ -133,9 +133,9 @@ esac
 log "jupytext"
 uv tool install -q jupytext
 
-log "nvim python host (for molten): $NVIM_DATA/python-host"
+log "nvim python host (molten, debugpy): $NVIM_DATA/python-host"
 [ -x "$NVIM_DATA/python-host/bin/python" ] || uv venv -q --python 3.13 "$NVIM_DATA/python-host"
-uv pip install -q --python "$NVIM_DATA/python-host/bin/python" pynvim jupyter_client requests websocket-client
+uv pip install -q --python "$NVIM_DATA/python-host/bin/python" pynvim jupyter_client requests websocket-client debugpy
 
 log "linking configs: ${packages[*]}"
 # git identity lives in ~/.gitconfig (per machine, not in dotfiles). It must exist: otherwise
