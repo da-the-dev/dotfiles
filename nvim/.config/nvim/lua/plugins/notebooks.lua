@@ -21,6 +21,33 @@ local function run_cell(move_next)
   end
 end
 
+-- All code cells in the buffer as { first, last } line ranges (skips markdown and empty cells)
+local function code_cells()
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local markers = {}
+  for i, line in ipairs(lines) do
+    if line:match("^# %%") then markers[#markers + 1] = i end
+  end
+  local cells = {}
+  for k, m in ipairs(markers) do
+    local first, last = m + 1, (markers[k + 1] or #lines + 1) - 1
+    local has_code = vim.iter(vim.list_slice(lines, first, last)):any(function(l) return l:match("%S") end)
+    if not lines[m]:find("%[markdown%]") and has_code then cells[#cells + 1] = { first, last } end
+  end
+  return cells
+end
+
+-- Run all / above / below (like VSCode): "above" = cells before the current one,
+-- "below" = the current cell and everything after it
+local function run_cells(which)
+  local here = vim.fn.search("^# %%", "bcnW") + 1 -- first line of the cursor's cell
+  for _, c in ipairs(code_cells()) do
+    if which == "all" or (which == "above" and c[1] < here) or (which == "below" and c[1] >= here) then
+      vim.fn.MoltenEvaluateRange(c[1], c[2])
+    end
+  end
+end
+
 -- Start a kernel for the interpreter picked with <leader>cv (like VSCode's kernel = interpreter).
 -- Writes a kernelspec pointing at that python into nvim's own data dir, not ~/Library/Jupyter.
 local function start_kernel()
@@ -102,6 +129,9 @@ return {
       { "<leader>jI", "<cmd>MoltenInit<cr>", desc = "Start kernel (pick / connect)" },
       { "<leader>jj", function() run_cell(true) end, desc = "Run cell and go to next" },
       { "<leader>jc", function() run_cell(false) end, desc = "Run cell" },
+      { "<leader>ja", function() run_cells("all") end, desc = "Run all cells" },
+      { "<leader>ju", function() run_cells("above") end, desc = "Run cells above" },
+      { "<leader>jb", function() run_cells("below") end, desc = "Run this cell and below" },
       { "<leader>jl", "<cmd>MoltenEvaluateLine<cr>", desc = "Run line" },
       { "<leader>j", ":<C-u>MoltenEvaluateVisual<cr>gv<Esc>", mode = "x", desc = "Run selection" },
       { "<leader>jo", "<cmd>noautocmd MoltenEnterOutput<cr>", desc = "Open output window" },
