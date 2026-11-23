@@ -44,7 +44,7 @@ install_linux() {
     *) warn "unsupported CPU: $(uname -m)"; exit 1 ;;
   esac
   tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
+  trap 'rm -rf "${tmp:-}"' EXIT
 
   if needs nvim; then
     log "nvim (latest release)"
