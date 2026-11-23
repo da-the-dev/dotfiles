@@ -28,4 +28,4 @@
 [diff]
 	algorithm = histogram       # more readable diffs
 [merge]
-	conflictStyle = zdiff3      # conflicts also show the original text
+	conflictStyle = diff3       # conflicts also show the original text (zdiff3 needs git 2.35+)
