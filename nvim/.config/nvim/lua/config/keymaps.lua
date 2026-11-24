@@ -4,6 +4,10 @@
 vim.keymap.set("n", "<leader>cv", function() require("python_env").pick() end, { desc = "Select Python interpreter" })
 vim.api.nvim_create_user_command("PythonInterpreter", function() require("python_env").pick() end, {})
 
+-- Format with the language server (Python: ruff, C/C++: clangd, Lua: lua_ls): the file, or the
+-- selected lines. Not on save: autosave would reformat while you type.
+vim.keymap.set({ "n", "x" }, "<leader>cf", function() vim.lsp.buf.format({ timeout_ms = 3000 }) end, { desc = "Format file / selection" })
+
 -- Lazygit in a new tab w/ autoclose
 vim.keymap.set("n", "<leader>gg", function()
   vim.cmd.tabnew()
