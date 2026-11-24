@@ -46,7 +46,7 @@ In the picker: `<C-n>` / `<C-p>` move, `Enter` open, `<C-v>` / `<C-x>` open in a
 
 - **Explorer:** `a` add, `r` rename, `d` delete, `c` copy, `m` move, `s` open in a vertical split, `H` show hidden files, `?` all keys.
 - **Outline:** `Enter` jumps to the symbol.
-- **Claude:** `<C-h>` goes back to the code, `<C-\><C-n>` to scroll, `i` to type again.
+- **Claude:** `<C-h>` goes back to the code, `i` to type again. Scroll with the mouse wheel or `Fn+↑` / `Fn+↓`; `<C-o>` opens the full conversation (`/` searches, `<C-o>` closes). If it looks garbled: `<C-l>` while typing in it.
 - **REPL:** `<C-h>` goes back to the code, `<Esc><Esc>` to scroll, `i` to type again.
 - **Terminal:** `<Esc><Esc>` to leave or scroll, `i` to type again.
 

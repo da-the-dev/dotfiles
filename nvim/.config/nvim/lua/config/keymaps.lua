@@ -53,12 +53,14 @@ end, function()
   vim.api.nvim_win_set_buf(0, buf)
   vim.fn.jobstart({ "claude" }, {
     term = true,
+    -- Claude's full-screen renderer: the default one sometimes ends up drawing on the wrong row in
+    -- nvim's terminal after resizes (Ctrl+L repairs it)
+    env = { CLAUDE_CODE_NO_FLICKER = "1" },
     on_exit = function()
       if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
     end,
   })
   -- Claude uses <Esc> (interrupt) and <Esc><Esc> (rewind) itself, so leave with <C-h> instead
-  -- (or <C-\><C-n> to scroll)
   vim.keymap.set("t", "<Esc>", "<Esc>", { buffer = buf, nowait = true })
   vim.keymap.set("t", "<C-h>", "<C-\\><C-n><C-w>h", { buffer = buf, desc = "Go to left window" })
 end)
