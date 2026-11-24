@@ -14,6 +14,8 @@ Personal dotfiles managed by GNU Stow.
 - Keep changes minimal and machine-agnostic (no hardcoded
   usernames, hostnames, or absolute paths; use templates/conditionals).
 - Preserve existing behavior unless the task requires otherwise.
+- Before implementing a difficult or challenging feature, look up
+  existing solutions; it's usually cheaper than hand-rolling.
 
 ## Validate
 - Dry run first: `stow -n -v -t ~ <package>`
