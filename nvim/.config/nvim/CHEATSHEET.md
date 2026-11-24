@@ -1,4 +1,4 @@
-# Neovim cheatsheetche
+# Neovim cheatsheet
 
 `<leader>` is Space. `<C-x>` = Ctrl+x, `<S-x>` = Shift+x. Keys marked * are stock nvim.
 
@@ -64,6 +64,7 @@ In the picker: `<C-n>` / `<C-p>` move, `Enter` open, `<C-v>` / `<C-x>` open in a
 | `]d` / `[d` * | Next / previous problem |
 | `<C-w>d` * | Show the problem under the cursor |
 | `gcc` *, `gc` * | Comment line, selection |
+| `<leader>cf` | Format file / selection |
 | `<leader>cv` | Choose Python interpreter |
 
 - **Completion:** `Tab` or `Enter` accept, `<C-n>` / `<C-p>` select, `<C-Space>` open, `<C-e>` close (then `Enter` makes a new line).
