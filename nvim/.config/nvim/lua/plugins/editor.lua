@@ -105,7 +105,7 @@ return {
       -- Restart nvim, keeping the session. Loads it explicitly because :restart reuses the
       -- original command line, so `nvim file.py` would come back as just file.py; buffers from
       -- that command line are dropped first, as they may have been closed since.
-      -- neo-tree is reopened if it was open.
+      -- The file explorer is reopened if it was open.
       {
         "ZR",
         function()
@@ -116,7 +116,7 @@ return {
             end
           end
           local tree_open = vim.iter(vim.api.nvim_list_wins()):any(function(w)
-            return vim.bo[vim.api.nvim_win_get_buf(w)].filetype == "neo-tree"
+            return vim.b[vim.api.nvim_win_get_buf(w)].neo_tree_source == "filesystem"
           end)
           clean_up_for_session() -- save() doesn't run the PersistenceSavePre cleanup
           require("persistence").save()

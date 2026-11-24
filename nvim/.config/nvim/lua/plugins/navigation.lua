@@ -1,4 +1,5 @@
--- Finding files/text (telescope), the file explorer sidebar (neo-tree), buffer tabs (bufferline)
+-- Finding files/text/symbols (telescope), the file explorer and outline sidebars (neo-tree),
+-- buffer tabs (bufferline)
 return {
   {
     "nvim-telescope/telescope.nvim",
@@ -22,6 +23,9 @@ return {
       { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Buffers" },
       { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
       { "<leader>fk", function() require("telescope.builtin").keymaps() end, desc = "Keymaps (search by key or description)" },
+      -- symbols (functions, classes, ...) come from the language server
+      { "<leader>fs", function() require("telescope.builtin").lsp_document_symbols() end, desc = "Symbols in this file" },
+      { "<leader>fS", function() require("telescope.builtin").lsp_dynamic_workspace_symbols() end, desc = "Symbols in project" },
       {
         "<leader>cc",
         function() require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config"), prompt_title = "Config files" }) end,
@@ -63,8 +67,11 @@ return {
     },
     keys = {
       { "<leader>e", "<cmd>Neotree toggle reveal<cr>", desc = "File explorer" },
+      { "<leader>o", "<cmd>Neotree document_symbols right toggle<cr>", desc = "Outline" },
     },
     opts = {
+      sources = { "filesystem", "buffers", "git_status", "document_symbols" }, -- defaults + outline
+      document_symbols = { follow_cursor = true }, -- outline highlights the symbol the cursor is in
       -- show dotfiles (e.g. .config/) but hide .git; .gitignore'd files stay hidden
       filesystem = {
         filtered_items = {
@@ -102,7 +109,20 @@ return {
         close_command = function(n) require("mini.bufremove").delete(n, false) end,
         right_mouse_command = function(n) require("mini.bufremove").delete(n, false) end,
         -- start the tab bar to the right of neo-tree, like VSCode
-        offsets = { { filetype = "neo-tree", text = "Explorer", text_align = "left", separator = true } },
+        -- (or to the left of the outline, when only that is open)
+        offsets = {
+          {
+            filetype = "neo-tree",
+            text = function()
+              for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                if vim.b[vim.api.nvim_win_get_buf(w)].neo_tree_source == "filesystem" then return "Explorer" end
+              end
+              return "Outline"
+            end,
+            text_align = "left",
+            separator = true,
+          },
+        },
       },
     },
   },
