@@ -69,6 +69,19 @@ return {
       { "<leader>e", "<cmd>Neotree toggle reveal<cr>", desc = "File explorer" },
       { "<leader>o", "<cmd>Neotree document_symbols right toggle<cr>", desc = "Outline" },
     },
+    init = function()
+      -- The outline keeps using the window it was opened from, and errors on every cursor move
+      -- once that's closed. Point it at the window you're in when that shows the same file.
+      vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+        callback = function()
+          local manager = package.loaded["neo-tree.sources.manager"]
+          local ok, state = pcall(function() return manager.get_state("document_symbols") end)
+          if ok and state and state.lsp_bufnr == vim.api.nvim_get_current_buf() then
+            state.lsp_winid = vim.api.nvim_get_current_win()
+          end
+        end,
+      })
+    end,
     opts = {
       sources = { "filesystem", "buffers", "git_status", "document_symbols" }, -- defaults + outline
       document_symbols = { follow_cursor = true }, -- outline highlights the symbol the cursor is in
