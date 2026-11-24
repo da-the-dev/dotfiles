@@ -42,6 +42,9 @@ return {
     lazy = false, -- must be loaded at startup for auto-restore
     opts = {},
     init = function()
+      -- also save global variables (capitalized ones): bufferline keeps the tab order in one
+      vim.opt.sessionoptions:append("globals")
+
       vim.api.nvim_create_autocmd("User", {
         pattern = "PersistenceSavePre",
         callback = function()
