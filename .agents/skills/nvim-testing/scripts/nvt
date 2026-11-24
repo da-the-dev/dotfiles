@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# Drive a real, isolated nvim in a private tmux server. See ../SKILL.md.
+# usage: nvt DIR COMMAND [ARGS]     (DIR: your own scratch directory, one per test nvim)
+set -u
+
+usage() {
+  cat <<'U'
+nvt DIR start [-c CONFIG_HOME] [-g COLSxROWS] [-e NAME=VALUE]... [nvim args]
+nvt DIR keys KEY...          tmux key names, one by one: Space f f, C-l, Escape, Enter
+nvt DIR type TEXT            literal text
+nvt DIR send KEYS            nvim notation, for keys tmux can't send: '<C-.>'
+nvt DIR screen [FROM,TO]     the screen, or a range of its lines
+nvt DIR wait REGEX [SECS]    until the screen matches (default 10s); fails with the screen
+nvt DIR lua CODE             run Lua in it and print what it returns
+nvt DIR until CODE [SECS]    until the Lua code returns true (default 10s)
+nvt DIR headless [-c CONFIG_HOME] FILE LUA   run a Lua file on FILE without a UI
+nvt DIR stop                 quit it; reports anything left running
+U
+  exit 2
+}
+
+[ $# -ge 2 ] || usage
+mkdir -p "$1/work" "$1/state" || exit 1
+DIR=$(cd "$1" && pwd -P) || exit 1
+cmd=$2
+shift 2
+NAME=nvt-$(printf %s "$DIR" | cksum | cut -d' ' -f1) # private server: never anyone else's
+
+T() { tmux -L "$NAME" "$@"; }
+die() {
+  echo "nvt: $*" >&2
+  exit 1
+}
+
+config_home() { # directory that contains nvim/init.lua, as an absolute path
+  [ -f "$1/nvim/init.lua" ] || die "no nvim/init.lua in $1"
+  cd "$1" && pwd -P
+}
+
+server() { # v:servername, rewritten on every (re)start of nvim
+  local s
+  s=$(cat "$DIR/server" 2>/dev/null)
+  [ -n "$s" ] && [ -S "$s" ] || die "nvim isn't running" # an empty --server would hang
+  printf %s "$s"
+}
+
+lua() {
+  local s
+  s=$(server) || exit 1
+  printf 'return vim.inspect((function() %s\nend)())\n' "$1" > "$DIR/expr.lua"
+  nvim --server "$s" --remote-expr "luaeval('dofile(_A)', '$DIR/expr.lua')" < /dev/null || return 1
+  echo
+}
+
+poll() { # SECS COMMAND...
+  local n=$(($1 * 4))
+  shift
+  while [ "$n" -gt 0 ]; do
+    "$@" && return 0
+    sleep 0.25
+    n=$((n - 1))
+  done
+  return 1
+}
+on_screen() { T capture-pane -p | grep -qE -- "$1"; }
+is_true() { [ "$(lua "$1" 2>/dev/null)" = true ]; }
+
+# processes whose working directory is inside DIR: nvim, and what it started (REPLs, servers)
+leftovers() {
+  lsof -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null |
+    awk -v d="$DIR/" '/^p/ { p = substr($0, 2) } /^n/ { if (index(substr($0, 2) "/", d) == 1) print p }' |
+    grep -vx "$$"
+}
+none_left() { [ -z "$(leftovers)" ]; }
+
+case $cmd in
+  start)
+    config='' size=140x40 vars=''
+    while getopts c:g:e: o; do
+      case $o in
+        c) config=$(config_home "$OPTARG") || exit 1 ;;
+        g) size=$OPTARG ;;
+        e) vars="$vars $(printf %q "$OPTARG")" ;;
+        *) usage ;;
+      esac
+    done
+    shift $((OPTIND - 1))
+    T has-session 2>/dev/null && die "already started"
+    # a project root of its own, so root detection doesn't look further up
+    [ -d "$DIR/work/.git" ] || (cd "$DIR/work" && git init -q)
+    rm -f "$DIR/server"
+    {
+      echo "cd $(printf %q "$DIR/work") || exit"
+      echo "export XDG_STATE_HOME=$(printf %q "$DIR/state") IPYTHONDIR=$(printf %q "$DIR/ipython") PYTHONDONTWRITEBYTECODE=1"
+      [ -z "$config" ] || echo "export XDG_CONFIG_HOME=$(printf %q "$config")"
+      [ -z "$vars" ] || echo "export$vars"
+      printf 'nvim --cmd %q' "call writefile([v:servername], '$DIR/server')"
+      [ $# -eq 0 ] || printf ' %q' "$@"
+      printf '\necho "[nvim exited]"; exec cat\n' # keep the last screen readable
+    } > "$DIR/run.sh"
+    T -f /dev/null new-session -d -x "${size%x*}" -y "${size#*x}" "bash $(printf %q "$DIR/run.sh")" || exit 1
+    T set -g escape-time 0
+    poll 15 is_true 'return vim.v.vim_did_enter == 1' || {
+      T capture-pane -p
+      die "nvim didn't start"
+    }
+    ;;
+  keys)
+    for k in "$@"; do
+      T send-keys "$k"
+      sleep 0.15 # faster and two Escapes may not count as two, slower and mappings time out
+    done
+    ;;
+  type) T send-keys -l -- "$1" ;;
+  send)
+    s=$(server) || exit 1
+    nvim --server "$s" --remote-send "$1" < /dev/null
+    ;;
+  screen) if [ $# -gt 0 ]; then T capture-pane -p | sed -n "${1}p"; else T capture-pane -p; fi ;;
+  wait)
+    poll "${2:-10}" on_screen "$1" || {
+      T capture-pane -p
+      die "never saw: $1"
+    }
+    ;;
+  lua) lua "$1" ;;
+  until) poll "${2:-10}" is_true "$1" || die "never true: $1" ;;
+  headless)
+    [ "${1:-}" != -c ] || {
+      XDG_CONFIG_HOME=$(config_home "$2") || exit 1
+      export XDG_CONFIG_HOME
+      shift 2
+    }
+    script=$(cd "$(dirname "$2")" && pwd -P)/$(basename "$2")
+    cd "$DIR/work" || exit 1
+    XDG_STATE_HOME=$DIR/state PYTHONDONTWRITEBYTECODE=1 \
+      nvim --headless "$1" -c "luafile $script" -c 'qa!' 2>&1 < /dev/null
+    echo
+    ;;
+  stop)
+    if s=$(server 2>/dev/null); then
+      nvim --server "$s" --remote-send '<C-\><C-n>:qa!<CR>' < /dev/null 2>/dev/null
+      poll 4 none_left
+    fi
+    socket=$(T display-message -p '#{socket_path}' 2>/dev/null)
+    T kill-server 2>/dev/null
+    case $socket in */"$NAME") rm -f "$socket" ;; esac # tmux leaves the file behind
+    poll 4 none_left || die "still running in $DIR: $(leftovers | tr '\n' ' ')"
+    ;;
+  *) usage ;;
+esac
