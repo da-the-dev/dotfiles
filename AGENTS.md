@@ -26,6 +26,8 @@ Personal dotfiles managed by GNU Stow.
   or deleting files.
 - Never: run apply/update/remove against the host unless asked,
   make privileged changes, or commit or print secrets.
+- Free rein: inside your own scratchpad directory, create, change,
+  run and delete anything without asking (secrets rules still apply).
 
 ## Secrets
 - Do not print suspected secrets in logs or replies.
