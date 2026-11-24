@@ -38,9 +38,22 @@ return {
     "neovim/nvim-lspconfig",
     config = function()
       vim.lsp.config("basedpyright", {
-        -- "off" = Pylance's default: only unresolved imports, undefined names, syntax errors.
+        -- Like Pylance's default: no type checking, only undefined names, unresolved imports and
+        -- syntax errors. "off" alone disables the first two as well, and with them the
+        -- "add import" code action (gra), which is a fix for an undefined name.
         -- A project's [tool.basedpyright] in pyproject.toml still overrides this.
-        settings = { basedpyright = { analysis = { typeCheckingMode = "off" } } },
+        settings = {
+          basedpyright = {
+            analysis = {
+              typeCheckingMode = "off",
+              diagnosticSeverityOverrides = {
+                reportUndefinedVariable = "warning",
+                reportMissingImports = "warning",
+                reportMissingModuleSource = "warning",
+              },
+            },
+          },
+        },
         -- point basedpyright at the project's interpreter (see lua/python_env.lua)
         before_init = function(_, config)
           local python = config.root_dir and require("python_env").resolve(config.root_dir)

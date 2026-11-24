@@ -58,7 +58,7 @@ In the picker: `<C-n>` / `<C-p>` move, `Enter` open, `<C-v>` / `<C-x>` open in a
 | `grr` * | References |
 | `<C-t>` / `<C-o>` * | Back (after a definition / any jump) |
 | `K` * | Documentation |
-| `grn` * / `gra` * | Rename / code action |
+| `grn` * / `gra` * | Rename / code action (add import, fixes) |
 | `]d` / `[d` * | Next / previous problem |
 | `<C-w>d` * | Show the problem under the cursor |
 | `gcc` *, `gc` * | Comment line, selection |
