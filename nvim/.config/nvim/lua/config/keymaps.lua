@@ -27,10 +27,6 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 
--- Buffers: <S-h>/<S-l> for previous/next (replaces H/L = top/bottom of screen)
-vim.keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
-vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
-
 -- Terminal: a panel at the bottom like VSCode's. One shell, kept running while hidden.
 local term = { buf = nil, win = nil }
 local function toggle_terminal()

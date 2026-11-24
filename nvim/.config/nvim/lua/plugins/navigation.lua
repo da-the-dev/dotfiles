@@ -81,9 +81,24 @@ return {
     version = "*",
     lazy = false,
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    keys = {
+      -- in tab-bar order, which :bprevious/:bnext don't follow once tabs are reordered
+      -- (replaces H/L = top/bottom of screen)
+      { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Previous buffer" },
+      { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
+      -- move the tab; takes a count (3<leader>bl). One step at a time: bufferline's own
+      -- move by n swaps the two tabs instead of shifting the ones in between.
+      { "<leader>bh", function() for _ = 1, vim.v.count1 do require("bufferline").move(-1) end end, desc = "Move tab left" },
+      { "<leader>bl", function() for _ = 1, vim.v.count1 do require("bufferline").move(1) end end, desc = "Move tab right" },
+      { "<leader>bp", "<cmd>BufferLinePick<cr>", desc = "Pick buffer by letter" },
+      { "<leader>bx", "<cmd>BufferLinePickClose<cr>", desc = "Pick buffer to close" },
+      { "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", desc = "Close other buffers" },
+      { "<leader>bH", "<cmd>BufferLineCloseLeft<cr>", desc = "Close buffers to the left" },
+      { "<leader>bL", "<cmd>BufferLineCloseRight<cr>", desc = "Close buffers to the right" },
+    },
     opts = {
       options = {
-        -- clicking a tab's x / right-click: close like <leader>bd (default is bdelete!, which discards changes)
+        -- closing tabs (mouse, <leader>bo/bH/bL/bx): close like <leader>bd (default is bdelete!, which discards changes)
         close_command = function(n) require("mini.bufremove").delete(n, false) end,
         right_mouse_command = function(n) require("mini.bufremove").delete(n, false) end,
         -- start the tab bar to the right of neo-tree, like VSCode
