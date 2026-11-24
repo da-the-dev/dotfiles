@@ -33,3 +33,19 @@ vim.api.nvim_create_autocmd("BufWipeout", {
     end
   end,
 })
+
+-- Reload files changed outside nvim (Claude, git, formatters) within a second, like VSCode.
+-- nvim itself only checks when it regains focus; without this, autosave would stop you with
+-- "file has changed, really write?". Buffers with unsaved changes are left alone, and so are
+-- notebooks, which jupytext converts on load.
+vim.uv.new_timer():start(1000, 1000, vim.schedule_wrap(function()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    local name = vim.api.nvim_buf_get_name(buf)
+    if
+      vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == "" and not vim.bo[buf].modified
+      and name ~= "" and not name:match("%.ipynb$")
+    then
+      vim.cmd("silent! checktime " .. buf)
+    end
+  end
+end))
