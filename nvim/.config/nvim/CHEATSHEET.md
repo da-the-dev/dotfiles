@@ -1,4 +1,4 @@
-# Neovim cheatsheet
+# Neovim cheatsheetche
 
 `<leader>` is Space. `<C-x>` = Ctrl+x, `<S-x>` = Shift+x. Keys marked * are stock nvim.
 
@@ -64,7 +64,7 @@ In the picker: `<C-n>` / `<C-p>` move, `Enter` open, `<C-v>` / `<C-x>` open in a
 | `gcc` *, `gc` * | Comment line, selection |
 | `<leader>cv` | Choose Python interpreter |
 
-- **Completion:** `Tab` accept, `<C-n>` / `<C-p>` select, `<C-Space>` open, `<C-e>` close.
+- **Completion:** `Tab` or `Enter` accept, `<C-n>` / `<C-p>` select, `<C-Space>` open, `<C-e>` close (then `Enter` makes a new line).
 - **Surround:** `ysiw"` add quotes around a word, `cs"'` change `"` to `'`, `ds"` remove.
 
 ## Debug

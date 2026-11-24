@@ -92,8 +92,13 @@ return {
     version = "1.*", -- release tags ship a prebuilt fuzzy matcher
     opts = {
       -- "super-tab" preset (like VSCode): <Tab> accepts (or jumps to the next snippet field),
-      -- <C-n>/<C-p> or arrows select, <C-space> open, <C-e> close; <C-y> kept as an accept key too
-      keymap = { preset = "super-tab", ["<C-y>"] = { "select_and_accept", "fallback" } },
+      -- <C-n>/<C-p> or arrows select, <C-space> open, <C-e> close; <C-y> kept as an accept key too.
+      -- <CR> accepts as well (VSCode's acceptSuggestionOnEnter): <C-e> first for a new line.
+      keymap = {
+        preset = "super-tab",
+        ["<C-y>"] = { "select_and_accept", "fallback" },
+        ["<CR>"] = { "accept", "fallback" },
+      },
       completion = { documentation = { auto_show = true } },
       sources = {
         default = { "lazydev", "lsp", "path", "snippets", "buffer" },
