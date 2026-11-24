@@ -52,6 +52,9 @@ local function current_root()
   return client and client.root_dir or vim.fs.root(0, root_markers) or vim.uv.cwd()
 end
 
+--- Project root of the current buffer
+M.root = current_root
+
 --- Interpreter for a project root: saved choice > project .venv > nil (python on PATH)
 function M.resolve(root)
   local saved = load()[root]

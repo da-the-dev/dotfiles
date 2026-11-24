@@ -40,12 +40,14 @@ In the picker: `<C-n>` / `<C-p>` move, `Enter` open, `<C-v>` / `<C-x>` open in a
 | `<leader>e` | File explorer (left) |
 | `<leader>o` | Outline (right) |
 | `<leader>a` or `<C-.>` | Claude (right) |
+| `<leader>rr` | Python REPL (right) |
 | `<leader>t` or `` <C-`> `` | Terminal (bottom) |
 | `<leader>gg` | Lazygit |
 
 - **Explorer:** `a` add, `r` rename, `d` delete, `c` copy, `m` move, `s` open in a vertical split, `H` show hidden files, `?` all keys.
 - **Outline:** `Enter` jumps to the symbol.
 - **Claude:** `<C-h>` goes back to the code, `<C-\><C-n>` to scroll, `i` to type again.
+- **REPL:** `<C-h>` goes back to the code, `<Esc><Esc>` to scroll, `i` to type again.
 - **Terminal:** `<Esc><Esc>` to leave or scroll, `i` to type again.
 
 `<C-.>` and `` <C-`> `` also work while typing in a panel; `<leader>` keys don't.
@@ -81,6 +83,16 @@ In the picker: `<C-n>` / `<C-p>` move, `Enter` open, `<C-v>` / `<C-x>` open in a
 | `<leader>dl` / `<leader>dt` | Re-run last / debug Python test under cursor |
 | `<leader>du` / `<leader>dw` / `<leader>dr` | Panel / watch expression / REPL |
 
+## Python REPL
+Uses the interpreter from `<leader>cv` (IPython if installed there). After switching interpreter: `<leader>rn`.
+
+| Key | Action |
+|---|---|
+| `<leader>rr` | Show / hide |
+| `<leader>rl` | Run the statement under the cursor, go to the next |
+| `<leader>r` in visual mode | Run selection |
+| `<leader>rn` | Fresh REPL |
+
 ## Notebooks
 | Key | Action |
 |---|---|
@@ -112,5 +124,5 @@ Saved per directory on quit; plain `nvim` restores the current directory's sessi
 ## Good to know
 - Files save 500ms after a change and reload when something else changes them (not notebooks).
 - Undoing past a reload also undoes that outside change on disk. `<C-r>` * redoes.
-- Quitting nvim also stops Claude and the terminal. `/resume` in Claude brings the conversation back.
+- Quitting nvim also stops Claude, the REPL and the terminal. `/resume` in Claude brings the conversation back.
 - Russian layout: built-in commands work; multi-key mappings need English (see `lua/plugins/keyboard.lua`).

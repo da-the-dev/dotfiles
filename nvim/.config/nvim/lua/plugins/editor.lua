@@ -31,6 +31,7 @@ return {
         { "<leader>j", group = "jupyter" },
         { "<leader>c", group = "code" },
         { "<leader>d", group = "debug" },
+        { "<leader>r", group = "repl" },
         { "<leader>q", group = "session" },
       },
     },

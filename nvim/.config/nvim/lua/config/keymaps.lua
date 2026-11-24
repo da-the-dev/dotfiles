@@ -27,41 +27,20 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Go to lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Go to upper window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
 
--- Panels: a terminal at the edge of the screen, toggled by a key and kept running while hidden.
--- `split` opens the window and sets its size, `start` starts the program in it.
-local function panel(split, start)
-  local state = { buf = nil, win = nil }
-  return function()
-    if state.win and vim.api.nvim_win_is_valid(state.win) and vim.api.nvim_win_get_buf(state.win) == state.buf then
-      if #vim.api.nvim_tabpage_list_wins(0) == 1 then return end -- it's the only window: keep it
-      vim.api.nvim_win_hide(state.win)
-      state.win = nil
-      return
-    end
-    split()
-    if state.buf and vim.api.nvim_buf_is_valid(state.buf) then
-      vim.api.nvim_win_set_buf(0, state.buf)
-    else
-      start()
-      state.buf = vim.api.nvim_get_current_buf()
-      vim.bo[state.buf].buflisted = false -- keep it out of the tab bar and <S-h>/<S-l>
-    end
-    state.win = vim.api.nvim_get_current_win()
-    vim.cmd.startinsert()
-  end
-end
+-- Panels (lua/panel.lua): terminal, Claude, Python REPL
+local panel = require("panel")
 
 -- Terminal: a panel at the bottom like VSCode's
-local toggle_terminal = panel(function()
+local terminal = panel(function()
   vim.cmd("botright split")
   vim.api.nvim_win_set_height(0, math.floor(vim.o.lines * 0.3))
 end, vim.cmd.terminal)
-vim.keymap.set({ "n", "t" }, "<C-`>", toggle_terminal, { desc = "Toggle terminal" })
-vim.keymap.set("n", "<leader>t", toggle_terminal, { desc = "Toggle terminal" })
+vim.keymap.set({ "n", "t" }, "<C-`>", terminal.toggle, { desc = "Toggle terminal" })
+vim.keymap.set("n", "<leader>t", terminal.toggle, { desc = "Toggle terminal" })
 
 -- Claude Code: a panel on the right. Closes when Claude exits; a new toggle starts it again.
 -- Files it edits are reloaded by the timer in config/autocmds.lua.
-local open_claude = panel(function()
+local claude = panel(function()
   vim.cmd("botright vsplit")
   vim.api.nvim_win_set_width(0, math.floor(vim.o.columns * 0.4))
   vim.cmd("setlocal winfixwidth") -- keep its width when other windows open or close
@@ -84,10 +63,16 @@ local function toggle_claude()
     vim.notify("claude is not installed", vim.log.levels.WARN)
     return
   end
-  open_claude()
+  claude.toggle()
 end
 vim.keymap.set({ "n", "t" }, "<C-.>", toggle_claude, { desc = "Toggle Claude" })
 vim.keymap.set("n", "<leader>a", toggle_claude, { desc = "Toggle Claude" })
+
+-- Python REPL: a panel on the right, see lua/repl.lua
+vim.keymap.set("n", "<leader>rr", function() require("repl").toggle() end, { desc = "Toggle Python REPL" })
+vim.keymap.set("n", "<leader>rl", function() require("repl").run_statement() end, { desc = "Run statement, go to next" })
+vim.keymap.set("x", "<leader>r", function() require("repl").run_selection() end, { desc = "Run selection in REPL" })
+vim.keymap.set("n", "<leader>rn", function() require("repl").restart() end, { desc = "New (fresh) REPL" })
 
 -- Leave terminal mode with <Esc><Esc> (single <Esc> still goes to the shell/program);
 -- nvim's own <C-\><C-n> works too
