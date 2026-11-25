@@ -116,6 +116,21 @@ Uses the interpreter from `<leader>cv` (IPython if installed there). After switc
 Math (`$...$`, `$$...$$`) is shown as Unicode; the cursor line shows the source. Write `\$5` for a
 dollar sign when a line has two of them.
 
+Math snippets (the full list is in `lua/latex_snippets.lua`); they expand while you type:
+
+| Type | Get |
+|---|---|
+| `mk` / `dm` | `$…$` / `$$…$$` block |
+| `<Tab>` / `<S-Tab>` | Next / previous field, and out of the formula |
+| `x/`, `(a+b)/`, `//` | `\dfrac{…}{}` |
+| `@a`, `alpha` | `\alpha` (same for the other Greek letters) |
+| `x1`, `sr`, `rd`, `_`, `^` | `x_{1}`, `^{2}`, `^{…}`, `_{…}`, `^{…}` |
+| `xhat`, `xbar`, `xvec`, `xbold` | `\hat{x}`, ... |
+| `sum`, `int`, `lim`, `sq`, `<=`, `!=`, `->`, `ooo` | `\sum`, `\int … dx`, ... |
+| `bmat`, `case`, `align`, `lr(` | Environments, `\left( … \right)` |
+| `par`, `pafx`, `defx`, `red`, `te` then `<Tab>` | Derivatives, colors, `\text{}` |
+| select, `<Tab>`, then `U` `O` `B` `C` `K` `S` | Underbrace, overbrace, underset, cancel, cancelto, sqrt |
+
 ## Sessions
 Saved per directory on quit; plain `nvim` restores the current directory's session.
 

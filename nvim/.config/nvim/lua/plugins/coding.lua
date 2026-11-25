@@ -99,6 +99,23 @@ return {
     },
   },
 
+  -- LaTeX snippets in markdown math (see lua/latex_snippets.lua). Only there: blink.cmp keeps using
+  -- nvim's own snippets for completion.
+  {
+    "L3MON4D3/LuaSnip",
+    version = "v2.*",
+    ft = "markdown",
+    config = function()
+      require("luasnip").setup({
+        enable_autosnippets = true,
+        update_events = { "TextChanged", "TextChangedI" }, -- repeated fields follow while typing
+        region_check_events = "InsertEnter", -- moving away ends a snippet
+        delete_check_events = "TextChanged",
+      })
+      require("latex_snippets").setup()
+    end,
+  },
+
   -- Completion menu
   {
     "saghen/blink.cmp",
@@ -111,6 +128,19 @@ return {
         preset = "super-tab",
         ["<C-y>"] = { "select_and_accept", "fallback" },
         ["<CR>"] = { "accept", "fallback" },
+        -- <Tab> in markdown math goes to LaTeX snippets first; the rest is super-tab's own <Tab>
+        ["<Tab>"] = {
+          function() return require("latex_snippets").tab(1) end,
+          function(cmp)
+            if cmp.snippet_active() then return cmp.accept() end
+            return cmp.select_and_accept()
+          end,
+          "snippet_forward", "fallback",
+        },
+        ["<S-Tab>"] = {
+          function() return require("latex_snippets").tab(-1) end,
+          "snippet_backward", "fallback",
+        },
       },
       completion = { documentation = { auto_show = true } },
       sources = {
