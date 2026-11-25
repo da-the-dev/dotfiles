@@ -52,10 +52,10 @@ programs (`claude`, ...) in a folder and start with `-e PATH=that-folder:$PATH`.
   neo-tree open, an empty buffer, and no language server, when the change could touch them.
 
 ## This config's traps
-- Plain `nvim` restores the directory's session; quitting saves it.
+- Plain `nvim` restores the directory's session; quitting saves it. `nvim file` does neither.
 - Files autosave 500ms after a change and reload about 1s after an outside change. `u` can undo past
   a reload and write the old content back.
-- `persistence.save()` (used by `ZR`) doesn't fire `PersistenceSavePre`; only quitting does.
+- `persistence.save()` (used by `ZR`) doesn't fire `PersistenceSavePre`; quitting and switching sessions do.
 - `:restart` replays the original command line, so `nvim a.py` reopens `a.py` (`ZR` handles this).
 - The argument list is saved in sessions, along with globals that start with a capital letter.
 - `langmap` only translates the first key of a multi-key mapping.

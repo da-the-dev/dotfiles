@@ -132,13 +132,17 @@ Math snippets (the full list is in `lua/latex_snippets.lua`); they expand while 
 | select, `<Tab>`, then `U` `O` `B` `C` `K` `S` | Underbrace, overbrace, underset, cancel, cancelto, sqrt |
 
 ## Sessions
-Saved per directory on quit; plain `nvim` restores the current directory's session.
+Saved per directory (and git branch) on quit; plain `nvim` restores the current directory's session.
+`nvim file` neither restores nor saves it; loading a session by key turns saving on.
+Not saved: breakpoints, the terminal, the REPL, Claude.
 
 | Key | Action |
 |---|---|
 | `ZR` | Restart nvim, keeping the session |
-| `<leader>qs` / `<leader>ql` / `<leader>qS` | Restore this directory's / last / pick |
+| `<leader>qs` | Restore this directory's |
+| `<leader>ql` / `<leader>qS` | Switch to the last one / pick: saves and closes this one, stops its terminals and Claude |
 | `<leader>qd` / `<leader>qD` | Don't save on quit / delete this directory's session |
+| `:detach` * | Leave nvim running in the background (note `:echo v:servername` first; back with `nvim --server <address> --remote-ui`) |
 
 ## Good to know
 - Files save 500ms after a change and reload when something else changes them (not notebooks).
