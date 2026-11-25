@@ -9,7 +9,7 @@ return {
     config = function()
       -- parsers to install (async on startup; install.sh builds them up front for offline use)
       local parsers = {
-        "python", "c", "cpp", "lua",
+        "python", "c", "cpp", "lua", "bash",
         "markdown", "markdown_inline", "vim", "vimdoc", "query",
       }
       -- math in markdown; the only parser here that can't be built without the CLI
@@ -77,7 +77,7 @@ return {
           end
         end,
       })
-      vim.lsp.enable({ "basedpyright", "ruff", "clangd", "lua_ls" })
+      vim.lsp.enable({ "basedpyright", "ruff", "clangd", "lua_ls", "bashls" })
 
       -- gd: go to definition, like <C-]> (stock gd is a text search for a local declaration,
       -- and stays that way in buffers without a language server)

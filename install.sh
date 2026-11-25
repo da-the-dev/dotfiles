@@ -24,8 +24,8 @@ export PATH="$BIN:$PATH"
 
 install_macos() {
   have brew || { warn "Install Homebrew first: https://brew.sh"; exit 1; }
-  log "brew: nvim, rg, tree-sitter, lazygit, LSPs, uv, stow, imagemagick, tmux"
-  brew install neovim ripgrep tree-sitter-cli lazygit lua-language-server basedpyright ruff uv stow imagemagick tmux
+  log "brew: nvim, rg, tree-sitter, lazygit, LSPs, uv, stow, imagemagick, tmux, bash-language-server, shellcheck, shfmt"
+  brew install neovim ripgrep tree-sitter-cli lazygit lua-language-server basedpyright ruff uv stow imagemagick tmux bash-language-server shellcheck shfmt
   # macism (layout switching in nvim) comes from its author's tap, which brew must be told to trust
   brew tap laishulu/homebrew && brew trust --formula laishulu/homebrew/macism && brew install macism || warn "macism not installed: no automatic layout switching in nvim"
 }
@@ -94,9 +94,17 @@ install_linux() {
     curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
   fi
 
-  log "uv tools: ruff, basedpyright"
+  log "uv tools: ruff, basedpyright, shellcheck-py, shfmt-py"
   uv tool install -q ruff
   uv tool install -q basedpyright # bundles its own Node.js
+  uv tool install -q shellcheck-py
+  uv tool install -q shfmt-py
+
+  if needs bash-language-server; then
+    log "bash-language-server"
+    have npm || uv tool install -q nodejs-wheel # Node.js
+    npm install -g --silent --prefix "$HOME/.local" bash-language-server || warn "bash-language-server is not installed: no bash LSP in nvim"
+  fi
 
   have clangd || warn "clangd not found (C/C++ LSP); install it from your system packages if you need it"
   have tmux || warn "tmux not found; install it from your system packages"
