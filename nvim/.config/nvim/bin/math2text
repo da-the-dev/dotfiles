@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+# LaTeX on stdin to Unicode, for render-markdown: utftex, with what it lacks rewritten first.
+use strict; use warnings;
+use IPC::Open2;
+my $m = do { local $/; <STDIN> };
+my $group = qr/(\{(?:[^{}\\]++|\\.|(?-1))*+\})/s; # {...}, nested
+
+$m =~ s/\\tag\*?\{([^{}]*)\}/\\quad ($1)/g;          # equation number
+$m =~ s/\\textcolor\s*\{[^{}]*\}//g;                  # no colors
+$m =~ s/\\implies(?![A-Za-z])/\\Rightarrow/g;
+# labels under and over: utftex draws the brace as a character in front
+$m =~ s/\\underbrace\s*$group\s*_\s*$group/\\ \\mathop$1\\limits_$2\\ /g;
+$m =~ s/\\overbrace\s*$group\s*\^\s*$group/\\ \\mathop$1\\limits^$2\\ /g;
+# spaces it swallows: "ln u", "a ∈ b"
+$m =~ s/\\(ln|log|exp|sin|cos|tan|det|max|min)\s+(?=[A-Za-z0-9\\])/\\$1\{\} /g;
+$m =~ s/\\(cdot|times|approx|in|notin|to|rightarrow|Rightarrow|leq|geq|neq|sim|equiv|mid|pm|cup|cap)(?![A-Za-z])\s*/\\$1\\ /g;
+
+my $pid = open2(my $out, my $in, "utftex");
+print $in $m; close $in;
+print while <$out>;
+waitpid $pid, 0;
+exit($? >> 8);

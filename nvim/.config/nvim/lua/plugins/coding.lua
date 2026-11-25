@@ -29,18 +29,19 @@ return {
 
   -- Render markdown in the buffer (headings, code blocks, tables, checkboxes, math); the cursor
   -- line and insert mode show raw text. `:RenderMarkdown toggle` to switch off.
-  -- Math needs utftex (install.sh builds it).
+  -- Math needs utftex (install.sh builds it) and perl.
   {
     "MeanderingProgrammer/render-markdown.nvim",
-    version = "*",
+    branch = "main", -- for latex.position = "replace"; back to version = "*" once it's in a release (after v8.14.0)
     ft = "markdown",
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     opts = {
       latex = {
         enabled = vim.fn.executable("utftex") == 1,
-        -- cat: formulas utftex doesn't know (\textcolor) stay as source. Not the default latex2text,
-        -- which draws \dfrac{a}{b} as "ab".
-        converter = { "utftex", "cat" },
+        -- math2text: utftex with its gaps filled. cat: what it still can't draw stays as source (not
+        -- the default latex2text, which draws \dfrac{a}{b} as "ab").
+        converter = { vim.fn.stdpath("config") .. "/bin/math2text", "cat" },
+        position = "replace", -- $$ blocks: instead of the source, not above it
       },
     },
   },
