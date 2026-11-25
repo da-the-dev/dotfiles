@@ -192,8 +192,18 @@ end
 
 local opening = false
 
+-- Hide IINA's main window, leaving picture-in-picture. IINA's own setting for that has no effect
+-- with --pip: it hides the window at launch, and shows it again when the video is ready.
+local function hide_window()
+  get("pid", function(pid)
+    if not pid then return end
+    local app = "$.NSRunningApplication.runningApplicationWithProcessIdentifier(" .. pid .. ")"
+    vim.system({ "osascript", "-l", "JavaScript", "-e", "ObjC.import('AppKit'); " .. app .. ".hide" })
+  end)
+end
+
 -- Once the stream plays: name it, and note in the player what it is
-local function mark(id, stream, tries)
+local function mark(id, stream, launched, tries)
   get("path", function(path)
     get("time-pos", function(pos)
       if path == stream.urls[1] and pos then
@@ -204,8 +214,9 @@ local function mark(id, stream, tries)
         send({ "set_property", "force-media-title", stream.title })
         if stream.urls[2] then send({ "audio-add", stream.urls[2], "select" }) end
         write_state(function(state) state.last = id end)
+        if launched then hide_window() end
       elseif tries > 0 then
-        vim.defer_fn(function() mark(id, stream, tries - 1) end, 250)
+        vim.defer_fn(function() mark(id, stream, launched, tries - 1) end, 250)
       else
         opening = false
         warn("IINA didn't start playing " .. stream.title)
@@ -239,7 +250,7 @@ local function open(id, seconds)
             iina(), "--no-stdin", "--pip", "--mpv-start=" .. seconds, "--mpv-input-ipc-server=" .. socket, stream.urls[1],
           }, { detach = true, stdout = false, stderr = false })
         end
-        mark(id, stream, 120)
+        mark(id, stream, idle ~= false, 120)
       end)
     end)
   end)
