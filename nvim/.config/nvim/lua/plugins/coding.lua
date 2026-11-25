@@ -29,13 +29,20 @@ return {
 
   -- Render markdown in the buffer (headings, code blocks, tables, checkboxes, math); the cursor
   -- line and insert mode show raw text. `:RenderMarkdown toggle` to switch off.
-  -- Math needs latex2text (uv tool install pylatexenc).
+  -- Math needs utftex (install.sh builds it).
   {
     "MeanderingProgrammer/render-markdown.nvim",
     version = "*",
     ft = "markdown",
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
-    opts = {},
+    opts = {
+      latex = {
+        enabled = vim.fn.executable("utftex") == 1,
+        -- cat: formulas utftex doesn't know (\textcolor) stay as source. Not the default latex2text,
+        -- which draws \dfrac{a}{b} as "ab".
+        converter = { "utftex", "cat" },
+      },
+    },
   },
 
   -- LSP: server configs come from nvim-lspconfig, servers are installed via brew

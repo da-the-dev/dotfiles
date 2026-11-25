@@ -103,6 +103,19 @@ install_linux() {
   have magick || have convert || warn "ImageMagick not found: no inline plots in nvim (<leader>jp still works)"
 }
 
+# utftex (math in markdown): no packages, so it's built from the release tarball (needs cc and make)
+install_utftex() (
+  needs utftex || exit 0
+  version=1.31 sha256=8ca5a11d387631a34979295f73f9a2eccc87e17c690dcd4c1454eb65a9e372bc
+  log "utftex $version (compiled with cc)"
+  tmp="$(mktemp -d)" && trap 'rm -rf "$tmp"' EXIT && cd "$tmp" || exit 1
+  curl -fsSLO "https://github.com/bartp5/libtexprintf/releases/download/v$version/libtexprintf-$version.tar.gz" || exit 1
+  [ "$( (sha256sum *.tar.gz 2>/dev/null || shasum -a 256 *.tar.gz) | cut -d' ' -f1)" = "$sha256" ] || { warn "utftex: wrong checksum"; exit 1; }
+  tar -xzf *.tar.gz && cd "libtexprintf-$version" || exit 1
+  { ./configure -q --disable-shared && make -s; } >build.log 2>&1 || { tail -5 build.log >&2; exit 1; }
+  install -m 755 src/utftex "$BIN/utftex"
+)
+
 # ---------- configs ----------
 
 # Link <pkg>/.config/* into ~/.config, with stow if available (same result either way)
@@ -132,9 +145,10 @@ case "$(uname -s)" in
   *) warn "unsupported OS: $(uname -s)"; exit 1 ;;
 esac
 
-log "uv tools: jupytext, pylatexenc (latex2text: math in markdown)"
+log "jupytext"
 uv tool install -q jupytext
-uv tool install -q pylatexenc
+
+install_utftex || warn "utftex not installed: math in markdown stays as source in nvim"
 
 log "nvim python host (molten, debugpy): $NVIM_DATA/python-host"
 [ -x "$NVIM_DATA/python-host/bin/python" ] || uv venv -q --python 3.13 "$NVIM_DATA/python-host"
