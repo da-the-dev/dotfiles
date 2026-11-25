@@ -198,6 +198,7 @@ local function mark(id, stream, tries)
     get("time-pos", function(pos)
       if path == stream.urls[1] and pos then
         opening = false
+        if vim.fn.mode() ~= "c" then vim.api.nvim_echo({ { "" } }, false, {}) end -- clear "Opening video…"
         local expire = tonumber(stream.urls[1]:match("[/&?]expire[/=](%d+)")) or os.time() + 5 * 3600
         send({ "set_property", "user-data/nvim_video", { id = id, expire = expire } })
         send({ "set_property", "force-media-title", stream.title })
