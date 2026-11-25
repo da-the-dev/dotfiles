@@ -80,7 +80,7 @@ vim.keymap.set("n", "<leader>rl", function() require("repl").run_statement() end
 vim.keymap.set("x", "<leader>r", function() require("repl").run_selection() end, { desc = "Run selection in REPL" })
 vim.keymap.set("n", "<leader>rn", function() require("repl").restart() end, { desc = "New (fresh) REPL" })
 
--- YouTube videos (<leader>v...), see lua/video.lua; does nothing without IINA and yt-dlp
+-- YouTube videos (<leader>v...), see lua/video.lua; does nothing without mpv and yt-dlp
 require("video").setup()
 
 -- Leave terminal mode with <Esc><Esc> (single <Esc> still goes to the shell/program);

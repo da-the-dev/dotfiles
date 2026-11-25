@@ -132,7 +132,7 @@ Math snippets (the full list is in `lua/latex_snippets.lua`); they expand while 
 | select, `<Tab>`, then `U` `O` `B` `C` `K` `S` | Underbrace, overbrace, underset, cancel, cancelto, sqrt |
 
 ## Video
-YouTube in IINA's picture-in-picture window (macOS, needs IINA and yt-dlp). It keeps playing when nvim closes.
+YouTube in a small mpv window on top of everything (needs mpv and yt-dlp): drag it to move, pinch to resize. It keeps playing when nvim closes.
 
 | Key | Action |
 |---|---|
