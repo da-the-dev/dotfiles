@@ -13,12 +13,6 @@ local attempts = {
   { "-f", "bv*[protocol^=m3u8][vcodec^=avc][height<=1080]+ba[protocol^=m3u8]/b[protocol^=m3u8][vcodec^=avc]" },
 }
 
-local function iina()
-  for _, cmd in ipairs({ "iina", "/Applications/IINA.app/Contents/MacOS/iina-cli" }) do
-    if vim.fn.executable(cmd) == 1 then return cmd end
-  end
-end
-
 local function warn(msg) vim.notify(msg, vim.log.levels.WARN, { title = "Video" }) end
 
 -- Saved positions --------------------------------------------------------------------------------
@@ -192,18 +186,8 @@ end
 
 local opening = false
 
--- Hide IINA's main window, leaving picture-in-picture. IINA's own setting for that has no effect
--- with --pip: it hides the window at launch, and shows it again when the video is ready.
-local function hide_window()
-  get("pid", function(pid)
-    if not pid then return end
-    local app = "$.NSRunningApplication.runningApplicationWithProcessIdentifier(" .. pid .. ")"
-    vim.system({ "osascript", "-l", "JavaScript", "-e", "ObjC.import('AppKit'); " .. app .. ".hide" })
-  end)
-end
-
 -- Once the stream plays: name it, and note in the player what it is
-local function mark(id, stream, launched, tries)
+local function mark(id, stream, tries)
   get("path", function(path)
     get("time-pos", function(pos)
       if path == stream.urls[1] and pos then
@@ -214,9 +198,8 @@ local function mark(id, stream, launched, tries)
         send({ "set_property", "force-media-title", stream.title })
         if stream.urls[2] then send({ "audio-add", stream.urls[2], "select" }) end
         write_state(function(state) state.last = id end)
-        if launched then hide_window() end
       elseif tries > 0 then
-        vim.defer_fn(function() mark(id, stream, launched, tries - 1) end, 250)
+        vim.defer_fn(function() mark(id, stream, tries - 1) end, 250)
       else
         opening = false
         warn("IINA didn't start playing " .. stream.title)
@@ -246,11 +229,15 @@ local function open(id, seconds)
           if idle then send({ "quit" }) end -- IINA without a video: start over
           disconnect()
           os.remove(socket)
+          -- In the background (-g) and hidden (-j). Started by iina-cli, IINA takes the focus (leaving
+          -- a full-screen terminal) and shows its main window, even if set to hide it
+          -- (Settings > UI > Picture-in-Picture), which works this way.
           vim.system({
-            iina(), "--no-stdin", "--pip", "--mpv-start=" .. seconds, "--mpv-input-ipc-server=" .. socket, stream.urls[1],
-          }, { detach = true, stdout = false, stderr = false })
+            "open", "-n", "-g", "-j", "-a", "IINA", "--args",
+            "--pip", "--mpv-start=" .. seconds, "--mpv-input-ipc-server=" .. socket, stream.urls[1],
+          })
         end
-        mark(id, stream, idle ~= false, 120)
+        mark(id, stream, 120)
       end)
     end)
   end)
@@ -338,7 +325,8 @@ function M.close()
 end
 
 function M.setup()
-  if not iina() or vim.fn.executable("yt-dlp") == 0 then return end
+  local iina = vim.uv.fs_stat("/Applications/IINA.app") or vim.uv.fs_stat(vim.fn.expand("~/Applications/IINA.app"))
+  if not iina or vim.fn.executable("yt-dlp") == 0 then return end
   local function map(key, f, desc) vim.keymap.set("n", "<leader>v" .. key, f, { desc = desc }) end
   map("v", M.toggle, "Play / pause, reopen the last video")
   map("o", M.open, "Open link (cursor or clipboard)")
