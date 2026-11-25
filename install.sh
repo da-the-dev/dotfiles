@@ -132,8 +132,9 @@ case "$(uname -s)" in
   *) warn "unsupported OS: $(uname -s)"; exit 1 ;;
 esac
 
-log "jupytext"
+log "uv tools: jupytext, pylatexenc (latex2text: math in markdown)"
 uv tool install -q jupytext
+uv tool install -q pylatexenc
 
 log "nvim python host (molten, debugpy): $NVIM_DATA/python-host"
 [ -x "$NVIM_DATA/python-host/bin/python" ] || uv venv -q --python 3.13 "$NVIM_DATA/python-host"

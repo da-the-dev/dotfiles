@@ -8,11 +8,16 @@ return {
     build = ":TSUpdate",
     config = function()
       -- parsers to install (async on startup; install.sh builds them up front for offline use)
-      vim.g.treesitter_parsers = {
+      local parsers = {
         "python", "c", "cpp", "lua",
         "markdown", "markdown_inline", "vim", "vimdoc", "query",
       }
-      require("nvim-treesitter").install(vim.g.treesitter_parsers)
+      -- math in markdown; the only parser here that can't be built without the CLI
+      if vim.fn.executable("tree-sitter") == 1 then
+        table.insert(parsers, "latex")
+      end
+      vim.g.treesitter_parsers = parsers
+      require("nvim-treesitter").install(parsers)
       -- use treesitter highlighting for any filetype that has a parser
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)
@@ -22,8 +27,9 @@ return {
     end,
   },
 
-  -- Render markdown in the buffer (headings, code blocks, tables, checkboxes); the cursor
+  -- Render markdown in the buffer (headings, code blocks, tables, checkboxes, math); the cursor
   -- line and insert mode show raw text. `:RenderMarkdown toggle` to switch off.
+  -- Math needs latex2text (uv tool install pylatexenc).
   {
     "MeanderingProgrammer/render-markdown.nvim",
     version = "*",

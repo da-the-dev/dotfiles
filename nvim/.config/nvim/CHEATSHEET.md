@@ -113,6 +113,8 @@ Uses the interpreter from `<leader>cv` (IPython if installed there). After switc
 | `<leader>x` | Toggle checkbox (line or selection) |
 | `:RenderMarkdown toggle` | Rendered / raw |
 
+Math (`$...$`, `$$...$$`) is shown as Unicode; the cursor line shows the source.
+
 ## Sessions
 Saved per directory on quit; plain `nvim` restores the current directory's session.
 
