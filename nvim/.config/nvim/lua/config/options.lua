@@ -7,6 +7,9 @@ vim.opt.shiftwidth = 2
 vim.opt.termguicolors = true
 vim.opt.undofile = true -- persist undo history (stored in stdpath("state")/undo)
 vim.o.winborder = "rounded" -- border around floating windows (diagnostics, hover docs, ...)
+-- Window title: the project directory, so terminal windows can be told apart
+vim.opt.title = true
+vim.opt.titlestring = "%{fnamemodify(getcwd(), ':t')}"
 -- Russian keyboard layout: in normal/visual mode, Cyrillic letters act as the Latin letter on
 -- the same key (вв = dd, Ж = :). Built-in commands only; see lua/plugins/keyboard.lua for the
 -- full decision (auto-switching the layout covers the rest).
