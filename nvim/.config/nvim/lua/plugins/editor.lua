@@ -62,6 +62,7 @@ return {
         { "<leader>c", group = "code" },
         { "<leader>d", group = "debug" },
         { "<leader>r", group = "repl" },
+        { "<leader>v", group = "video", cond = function() return vim.fn.maparg("<leader>vv", "n") ~= "" end },
         { "<leader>q", group = "session" },
       },
     },

@@ -131,6 +131,18 @@ Math snippets (the full list is in `lua/latex_snippets.lua`); they expand while 
 | `par`, `pafx`, `defx`, `red`, `te` then `<Tab>` | Derivatives, colors, `\text{}` |
 | select, `<Tab>`, then `U` `O` `B` `C` `K` `S` | Underbrace, overbrace, underset, cancel, cancelto, sqrt |
 
+## Video
+YouTube in IINA's picture-in-picture window (macOS, needs IINA and yt-dlp). It keeps playing when nvim closes.
+
+| Key | Action |
+|---|---|
+| `<leader>vo` | Open the link under the cursor, else from the clipboard |
+| `<leader>vv` | Play / pause; reopens the last video where it was left |
+| `<leader>vh` / `<leader>vl` | Back / forward 10s (`3<leader>vh`: 30s) |
+| `<leader>v-` / `<leader>v=` | Slower / faster |
+| `<leader>vt` / `<leader>vg` | Insert a timestamp link / go to the one under the cursor |
+| `<leader>vq` | Close |
+
 ## Sessions
 Saved per directory (and git branch) on quit; plain `nvim` restores the current directory's session.
 `nvim file` neither restores nor saves it; loading a session by key turns saving on.
