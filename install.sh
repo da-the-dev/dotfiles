@@ -92,16 +92,17 @@ install_linux() {
     ln -sfn "$OPT/lua-language-server/bin/lua-language-server" "$BIN/lua-language-server"
   fi
 
-  if needs mpv; then
+  # videos in nvim: only with a display, not on servers
+  if [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ] && needs mpv; then
     log "mpv (latest AppImage, pkgforge-dev)"
-    case "$arch" in arm64) mpv_arch=aarch64 ;; *) mpv_arch=$arch ;; esac
-    url=$(curl -fsSL "https://api.github.com/repos/pkgforge-dev/mpv-AppImage/releases/latest" \
-      | grep -Eo "https://[^\"]+-anylinux-${mpv_arch}\.AppImage\"" | head -n1 | tr -d '"')
-    [ -n "$url" ] || { log "mpv: no AppImage found for $mpv_arch"; return 1 2>/dev/null || exit 1; }
-    curl -fsSL "$url" -o "$tmp/mpv.AppImage"
-    chmod +x "$tmp/mpv.AppImage"
-    mkdir -p "$OPT/mpv" && mv -f "$tmp/mpv.AppImage" "$OPT/mpv/mpv.AppImage"
-    ln -sfn "$OPT/mpv/mpv.AppImage" "$BIN/mpv"
+    local mpv_arch url; [ "$arch" = x86_64 ] && mpv_arch=x86_64 || mpv_arch=aarch64
+    url="$(curl -fsSL "https://api.github.com/repos/pkgforge-dev/mpv-AppImage/releases/latest" |
+      grep -Eo "https://[^\"]+-anylinux-$mpv_arch\.AppImage\"" | head -1 | tr -d '"')" || true
+    if [ -n "$url" ] && curl -fsSL "$url" -o "$tmp/mpv"; then
+      install -m 755 "$tmp/mpv" "$BIN/mpv"
+    else
+      warn "mpv not installed: no videos in nvim"
+    fi
   fi
 
   if ! have uv; then
@@ -119,6 +120,11 @@ install_linux() {
     log "bash-language-server"
     have npm || uv tool install -q nodejs-wheel # Node.js
     npm install -g --silent --prefix "$HOME/.local" bash-language-server || warn "bash-language-server is not installed: no bash LSP in nvim"
+  fi
+
+  if [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+    log "uv tool: yt-dlp (for mpv)"
+    uv tool install -q "yt-dlp[default,deno]" || warn "yt-dlp not installed: no videos in nvim"
   fi
 
   have clangd || warn "clangd not found (C/C++ LSP); install it from your system packages if you need it"
