@@ -14,4 +14,5 @@ brew "tmux"
 brew "bash-language-server"
 brew "shellcheck"
 brew "shfmt"
+cask "zoomit"
 
