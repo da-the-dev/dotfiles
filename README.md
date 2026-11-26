@@ -5,6 +5,22 @@ Keys: [nvim cheatsheet](nvim/.config/nvim/CHEATSHEET.md).
 
 # Maintenance
 
+## ZoomIt (macOS)
+
+`zoomit/install.sh` builds the `main` branch of [my fork](https://github.com/da-the-dev/Zoomit-Mac)
+in `~/.local/src/zoomit` and installs it as `/Applications/ZoomIt.app`. `install.sh` runs it.
+It needs the Xcode command-line tools and, on first use, the Screen Recording permission.
+
+- **Rebuild:** `UPDATE=1 zoomit/install.sh`
+- **Get Microsoft's changes:** the fork's `main` has its own commits, so merge, push, then rebuild.
+  If the merge conflicts, resolve it and commit before pushing.
+
+  ```sh
+  git -C ~/.local/src/zoomit pull --no-rebase https://github.com/microsoft/Zoomit-Mac.git main
+  git -C ~/.local/src/zoomit push git@github.com:da-the-dev/Zoomit-Mac.git main
+  UPDATE=1 zoomit/install.sh
+  ```
+
 ## Add a language to nvim
 
 Two independent parts, both in `nvim/.config/nvim/lua/plugins/coding.lua`:

@@ -31,6 +31,8 @@ install_macos() {
   log "brew: $(brew bundle list --formula --file="$brewfile" | paste -sd' ' -)"
 
   brew bundle --file="$brewfile"
+
+  "$DOTFILES/zoomit/install.sh" || warn "ZoomIt not installed"
 }
 
 # Latest release tag of a GitHub repo, e.g. "v14.1.1"
