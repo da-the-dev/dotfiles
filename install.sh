@@ -24,10 +24,13 @@ export PATH="$BIN:$PATH"
 
 install_macos() {
   have brew || { warn "Install Homebrew first: https://brew.sh"; exit 1; }
-  log "brew: nvim, rg, tree-sitter, lazygit, LSPs, uv, stow, imagemagick, tmux, bash-language-server, shellcheck, shfmt"
-  brew install neovim ripgrep tree-sitter-cli lazygit lua-language-server basedpyright ruff uv stow imagemagick tmux bash-language-server shellcheck shfmt
-  # macism (layout switching in nvim) comes from its author's tap, which brew must be told to trust
-  brew tap laishulu/homebrew && brew trust --formula laishulu/homebrew/macism && brew install macism || warn "macism not installed: no automatic layout switching in nvim"
+
+  local brewfile
+  brewfile="$(dirname "${BASH_SOURCE[0]}")/Brewfile"
+
+  log "brew: $(brew bundle list --formula --file="$brewfile" | paste -sd' ' -)"
+
+  brew bundle --file="$brewfile"
 }
 
 # Latest release tag of a GitHub repo, e.g. "v14.1.1"
