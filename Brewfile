@@ -15,4 +15,5 @@ brew "bash-language-server"
 brew "shellcheck"
 brew "shfmt"
 cask "microsoft/sysinternalstap/zoomit"
+cask "notunes"
 
